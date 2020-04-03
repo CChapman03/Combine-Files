@@ -1,80 +1,125 @@
 import os
 import subprocess
-        
-combine_data = {"f" : "", "filename" : "", "filedir" : "", "should_save" : False}
-blend_data = {"objects" : []}
+import platform
+import time
 
-f_dir = "../blends/"
+# data structs
+create_data = {"input_directory" : ""}
+data = {"output_filename" : "", "input_filename" : "", "input_directory" : ""}
+stats = {"output_filename" : "", "time_taken" : 0, "num_files" : 0, "file_size" : 0}
+
+# variables
+input_dir = os.path.abspath("../blends/")
 
 a = 0
-for f in os.listdir(f_dir):
+for f in os.listdir(input_dir):
     fn, fe = os.path.splitext(f)
-    if os.path.isfile(f) and fe == '.blend':
+
+    if fe == ".blend":
         a += 1
 
 num_files = a
+
 first_file = ""
 last_file = ""
-
 out_f_name = ""
 
-blender_file_out = None
+blend_file_create = None
+blender_file_in = None
+blender_file_stats = None
 
-def init(file):
-    filepath = os.path.dirname(os.path.abspath(file))
-    combine_data.update(filedir = filepath)
-    combine_data.update(should_save = False)
-    blender_file_out = start("blender -b -P output_blend.py")
-    first_file = file.split(".")[0]
+start_time = 0
+time_taken = 0
 
-def do_work(file):
-    blender_file_in = start("blender -b %s -P blend_file.py" % file)
-    combine_data.update(f = file)
-    kill(blender_file_in)
-
-def save(file):
-    last_file = file.split(".")[0]
-    out_f_name = first_file.join("-").join(last_file)
-    combine_data.update(filename = out_f_name)
-    combine_data.update(should_save = True)
+def get_platform():
+    return platform.system()
 
 def start(cmd):
     p = subprocess.Popen(cmd.split(" "))
     return p
 
 def kill(process):
-    if process is not None:
-        process.kill()
+    #if process is not None:
+    process.kill()
 
-def combine(i, file):
-    if i == 1:
-        init(file)
+def init(file):
+    start_time = time.time()
+    fn, fe = os.path.splitext(file)
+    first_file = fn
+    print(first_file)
 
-    if i < num_files:
-        do_work(file)
+    # update data
+    create_data.update(input_directory = input_dir)
+    data.update(input_directory = input_dir)
 
-    elif i >= num_files:
-        save(file)
-        kill(blender_file_out)
+    # Create temp output.blend file
+    cmd = "blender -b -P create.py" if get_platform() == 'Linux' else "blender.exe -b -P create.py"
+    blend_file_create = start(cmd)
+    blend_file_create.wait()
+    kill(blend_file_create)
+
+def run(file):
+    # update data
+    data.update(input_filename = file)
+    data.update(output_filename = "output.blend")
+
+    cmd = "blender -b %s%s -P combine.py" % (input_dir, file) if get_platform() == 'Linux' else "blender.exe -b %s%s -P combine.py" % (input_dir, file)
+    blender_file_in = start(cmd)
+    blender_file_in.wait()
+    kill(blender_file_in)
+
+def terminate(file):
+    last_file = file.split(" ")[0]
+    out_f_name = "%s%s" % (first_file, last_file)
+    time_taken = time.time() - start_time
+    filesize = os.path.getsize(os.path.join(input_dir, "output.blend"))
+
+    # update stats
+    stats.update(output_filename = out_f_name)
+    stats.update(time_taken = time_taken)
+    stats.update(num_files = num_files)
+    stats.update(file_size = filesize)
+
+    cmd = "blender -b %s/output.blend -P statistics.py" % input_dir if get_platform() == 'Linux' else "blender.exe -b %s/output.blend -P statistics.p" % input_dir
+    blender_file_stats = start(cmd)
+    blender_file_stats.wait()
+    kill(blender_file_stats)
+
+    os.remove(os.path.join(input_dir, "output.blend"))
 
 
 def combine_to(i, file, amount):
-    if i == 1:
+    if i == 0:
         init(file)
 
-    elif i < amount:
-        do_work(file)
-
+    if i < amount:
+        run(file)
+    
     else:
-        save(file)
-        kill(blender_file_out)
+        terminate(file)
+        i = -1
 
-i = 1
-for file in os.listdir(f_dir):
 
-    fn, fe = os.path.splitext(file)
-    if fe == '.blend':
-        #combine_to(i, file, 100)
-        combine(i, file)
+def combine(i, file):
+    if i == 0:
+        init(file)
 
-        i += 1
+    if i < num_files:
+        run(file)
+    
+    else:
+        terminate(file)
+
+def main():
+
+    i = 0
+    for file in os.listdir(input_dir):
+        fn, fe = os.path.splitext(file)
+
+        if fe == ".blend":
+            #combine_to(i, file, 100)
+            combine(i, file)
+
+            i += 1
+
+main()

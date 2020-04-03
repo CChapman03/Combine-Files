@@ -1,5 +1,6 @@
-import os
 import bpy
+import os
+import sys
 
 dir = os.path.dirname(bpy.data.filepath)
 if not dir in sys.path:
@@ -12,13 +13,9 @@ imp.reload(combine_blend_files)
 
 from combine_blend_files import *
 
-o = 1
-objs = []
+in_dir = create_data.get("input_dir")
 
-for ob in bpy.context.scene.objects:
-    objs.append(ob)
-    print(("Object #%d is called: " % o)  + ob.data.name)
+def main():
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(in_dir, "output.blend"))
 
-    o += 1
-
-blend_data.update(objects = objs)
+main()

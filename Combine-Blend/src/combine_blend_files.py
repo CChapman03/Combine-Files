@@ -2,23 +2,22 @@ import os
 import subprocess
 import platform
 import time
+import signal
 
-# data structs
-create_data = {"input_directory" : ""}
-data = {"output_filename" : "", "input_filename" : "", "input_directory" : ""}
-stats = {"output_filename" : "", "time_taken" : 0, "num_files" : 0, "file_size" : 0}
+from data import *
 
 # variables
 input_dir = os.path.abspath("../blends/")
 
-a = 0
+f_data = file_data
+s_data = stat_data
+
+num_files = 0
 for f in os.listdir(input_dir):
     fn, fe = os.path.splitext(f)
 
     if fe == ".blend":
-        a += 1
-
-num_files = a
+        num_files += 1
 
 first_file = ""
 last_file = ""
@@ -35,38 +34,62 @@ def get_platform():
     return platform.system()
 
 def start(cmd):
-    p = subprocess.Popen(cmd.split(" "))
+
+    fn = cmd.split("-P ")[1].split(".")[0]
+
+    out = open("../logs/%s_out.txt" % fn, "w")
+    err = open("../logs/%s_err.txt" % fn, "w")
+
+    p = subprocess.Popen(cmd.split(" "), stdout=out, stderr=err, text=True)
     return p
 
-def kill(process):
-    #if process is not None:
-    process.kill()
+def execute_blender(cmd, time_limit = 60*5, stop = False):
+    fn = cmd.split("-P ")[1].split(".")[0]
+
+    out = open("../logs/%s_out.txt" % fn, "w")
+    err = open("../logs/%s_err.txt" % fn, "w")
+
+    p = subprocess.Popen(cmd.split(" "), stdout=out, stderr=err, text=True)
+    start_time = time.time()
+
+    is_running = True
+    while p.returncode == None:
+        p.poll()
+
+        if time.time() - start_time > time_limit:
+            if stop:
+                p.kill()
+                raise Exception("Process with command '%s' has failed to do its job" % cmd)
+            
+            p.kill()
+            raise Exception("Process with command '%s' has failed to do its job" % cmd)
+        
+    p.wait()
+
 
 def init(file):
     start_time = time.time()
     fn, fe = os.path.splitext(file)
     first_file = fn
-    print(first_file)
 
     # update data
-    create_data.update(input_directory = input_dir)
-    data.update(input_directory = input_dir)
+    f_data.update(input_directory = input_dir)
 
     # Create temp output.blend file
     cmd = "blender -b -P create.py" if get_platform() == 'Linux' else "blender.exe -b -P create.py"
-    blend_file_create = start(cmd)
-    blend_file_create.wait()
-    kill(blend_file_create)
+    stop_condition = os.path.isfile(os.path.join(input_dir, "output.blend")) and os.path.getsize(os.path.join(input_dir, "output.blend")) == 0
+    execute_blender(cmd, 20, stop_condition)
 
 def run(file):
     # update data
-    data.update(input_filename = file)
-    data.update(output_filename = "output.blend")
+    f_data.update(input_filename = file)
+
+    in_filesize = os.path.getsize(os.path.join(input_dir, file))
+    f_data.update(input_file_size = in_filesize)
 
     cmd = "blender -b %s%s -P combine.py" % (input_dir, file) if get_platform() == 'Linux' else "blender.exe -b %s%s -P combine.py" % (input_dir, file)
-    blender_file_in = start(cmd)
-    blender_file_in.wait()
-    kill(blender_file_in)
+    #stop_condition = False
+    execute_blender(cmd)
 
 def terminate(file):
     last_file = file.split(" ")[0]
@@ -75,15 +98,14 @@ def terminate(file):
     filesize = os.path.getsize(os.path.join(input_dir, "output.blend"))
 
     # update stats
-    stats.update(output_filename = out_f_name)
-    stats.update(time_taken = time_taken)
-    stats.update(num_files = num_files)
-    stats.update(file_size = filesize)
+    f_data.update(output_filename = out_f_name)
+    f_data.update(output_file_size = filesize)
 
-    cmd = "blender -b %s/output.blend -P statistics.py" % input_dir if get_platform() == 'Linux' else "blender.exe -b %s/output.blend -P statistics.p" % input_dir
-    blender_file_stats = start(cmd)
-    blender_file_stats.wait()
-    kill(blender_file_stats)
+    s_data.update(time_taken = time_taken)
+    s_data.update(num_files_processed = num_files)
+
+    cmd = "blender -b %s/output.blend -P statistics.py" % input_dir if get_platform() == 'Linux' else "blender.exe -b %s/output.blend -P statistics.py" % input_dir
+    execute_blender(cmd)
 
     os.remove(os.path.join(input_dir, "output.blend"))
 
@@ -104,11 +126,11 @@ def combine(i, file):
     if i == 0:
         init(file)
 
-    if i < num_files:
-        run(file)
+    # if i < num_files:
+    #     run(file)
     
-    else:
-        terminate(file)
+    # else:
+    #     terminate(file)
 
 def main():
 
@@ -119,6 +141,7 @@ def main():
         if fe == ".blend":
             #combine_to(i, file, 100)
             combine(i, file)
+            #print(f_data.get("input_directory"))
 
             i += 1
 

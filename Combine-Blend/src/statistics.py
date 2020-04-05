@@ -6,18 +6,21 @@ dir = os.path.dirname(bpy.data.filepath)
 if not dir in sys.path:
     sys.path.append(dir)
 
-import combine_blend_files
+import data
 
 import imp
-imp.reload(combine_blend_files)
+imp.reload(data)
 
-from combine_blend_files import *
+from data import *
+
+f_data = file_data
+s_data = stat_data
 
 # data variables
-output_filename = stats.get("output_filename")
-time_taken = stats.get("time_taken")
-num_files = stats.get("num_files")
-filesize = stats.get("file_size")
+output_filename = f_data.get("output_filename")
+time_taken = s_data.get("time_taken")
+num_files = s_data.get("num_files_processed")
+filesize = s_data.get("output_file_size")
 
 # Statistics Variables
 total_collections = 0
@@ -27,24 +30,30 @@ total_materials = 0
 time_taken_str = ""
 filesize_str = ""
 
-def main():
+def print_stats():
 
     # get collections
     output_collections = bpy.context.scene.collection
 
     # get statistic for output file
-    for col in output_collections:
-        for ob in output_collections.objects:
+    for col in output_collections.children:
+        for ob in col.objects:
             total_objects += 1
-            total_polys += len(ob.data.polygons)
 
-            # get number of materials in object
-            mesh = ob.data
-            for faces in mesh.polygons:
-                slot = ob.material_slots[faces.material_index]
-                mat = slot.material
-                if mat is not None:
-                    total_materials += 1
+            # get object type
+            objType = getattr(ob, 'type', '')
+	    
+            if objType in ["MESH"]:
+                # get number of polygons in object
+                total_polys += len(ob.data.polygons)
+
+                # get number of materials in object
+                mesh = ob.data
+                for faces in mesh.polygons:
+                    slot = ob.material_slots[faces.material_index]
+                    mat = slot.material
+                    if mat is not None:
+                        total_materials += 1
 
         total_collections += 1
     
@@ -57,9 +66,9 @@ def main():
 
     if time_taken <= 60:
         time_taken_str = "%d Seconds" % (time_taken)
-    elif time_taken > 60 time_taken <= 60 * 60:
+    elif time_taken > 60 and time_taken <= 60 * 60:
         time_taken_str = "%d Minutes" % (time_taken / (60))
-    elif time_taken > 60 * 60 time_taken <= 60 * 60 * 24:
+    elif time_taken > 60 * 60 and time_taken <= 60 * 60 * 24:
         time_taken_str = "%d Hours" % (time_taken / (60 * 60))
 
     # print final statistics
@@ -77,4 +86,4 @@ def main():
     # write collections to output file
     bpy.data.libraries.write(output_filename, output_collections)
 
-main()
+print_stats()

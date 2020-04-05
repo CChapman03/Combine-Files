@@ -6,16 +6,20 @@ dir = os.path.dirname(bpy.data.filepath)
 if not dir in sys.path:
     sys.path.append(dir)
 
-import combine_blend_files
+import data
 
-import imp
-imp.reload(combine_blend_files)
+import importlib
+importlib.reload(data)
 
-from combine_blend_files import *
+from data import *
 
-in_dir = create_data.get("input_dir")
+f_data = file_data
+in_dir = f_data.get("input_directory")
+temp_file = f_data.get("temp_filename")
+#print(in_dir)
 
 def main():
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(in_dir, "output.blend"))
+    file_path = "%s/%s" % (in_dir, temp_file)
+    bpy.ops.wm.save_as_mainfile(filepath=file_path)
 
 main()

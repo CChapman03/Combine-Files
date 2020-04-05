@@ -1,0 +1,8 @@
+Blender 2.82 (sub 7) (hash 375c7dc4caf4 built 2020-03-14 10:27:40)
+Read prefs: /home/ciaran/.config/blender/2.82/config/userpref.blend
+Error: Cannot open file /output.blend@ for writing: Permission denied
+psutil available
+MeasureIt: Cleaning data
+Error: Cannot open file /output.blend@ for writing: Permission denied
+
+Blender quit

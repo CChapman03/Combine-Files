@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/create.py", line 25, in <module>
+    main()
+  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/create.py", line 23, in main
+    bpy.ops.wm.save_as_mainfile(filepath=file_path)
+  File "/usr/share/blender/2.82/scripts/modules/bpy/ops.py", line 201, in __call__
+    ret = op_call(self.idname_py(), None, kw)
+RuntimeError: Error: Cannot open file /output.blend@ for writing: Permission denied
+

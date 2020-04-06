@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/combine.py", line 102, in <module>
+    combine_blend()
+  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/combine.py", line 39, in combine_blend
+    input_collections.data.name = new_collection_name
+AttributeError: 'Collection' object has no attribute 'data'

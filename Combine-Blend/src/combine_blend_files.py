@@ -4,48 +4,37 @@ import platform
 import time
 import signal
 
-from data import *
+#from data import *
 
 # variables
 input_dir = os.path.abspath("../blends/")
+temp_filename = "output.blend"
 
-f_data = file_data
-s_data = stat_data
-
-num_files = 0
+num_files = [0]
 for f in os.listdir(input_dir):
-    fn, fe = os.path.splitext(f)
+    fe = os.path.splitext(f)[1]
 
     if fe == ".blend":
-        num_files += 1
+        num_files[0] += 1
 
-first_file = ""
-last_file = ""
-out_f_name = ""
+first_file = [0]
+last_file = [0]
+out_f_name = [0]
 
 blend_file_create = None
 blender_file_in = None
 blender_file_stats = None
 
-start_time = 0
-time_taken = 0
+start_time = [0]
+time_taken = [0]
 
 def get_platform():
     return platform.system()
 
-def start(cmd):
-
-    fn = cmd.split("-P ")[1].split(".")[0]
-
-    out = open("../logs/%s_out.txt" % fn, "w")
-    err = open("../logs/%s_err.txt" % fn, "w")
-
-    p = subprocess.Popen(cmd.split(" "), stdout=out, stderr=err, text=True)
-    return p
-
 def execute_blender(cmd, time_limit = 60*5, stop = False):
     fn = cmd.split("-P ")[1].split(".")[0]
 
+    # Craete Log Files Per Subprocess
     out = open("../logs/%s_out.txt" % fn, "w")
     err = open("../logs/%s_err.txt" % fn, "w")
 
@@ -68,81 +57,107 @@ def execute_blender(cmd, time_limit = 60*5, stop = False):
 
 
 def init(file):
-    start_time = time.time()
-    fn, fe = os.path.splitext(file)
-    first_file = fn
 
-    # update data
-    f_data.update(input_directory = input_dir)
+    # Initailize/Create Temporary Output Blend and Delete Everything in it
+
+    start_time[0] = time.time()
+    fn = os.path.splitext(file)[0]
+    first_file[0] = fn
 
     # Create temp output.blend file
-    cmd = "blender -b -P create.py" if get_platform() == 'Linux' else "blender.exe -b -P create.py"
+    linux_mac_cmd = "blender -b -P create.py -- %s %s" % (input_dir, temp_filename)
+    win_cmd = "blender.exe -b -P create.py -- %s %s" % (input_dir, temp_filename)
+
+    cmd = linux_mac_cmd if get_platform() == 'Linux' else win_cmd
     stop_condition = os.path.isfile(os.path.join(input_dir, "output.blend")) and os.path.getsize(os.path.join(input_dir, "output.blend")) == 0
     execute_blender(cmd, 20, stop_condition)
 
+    # Clean temp output.blend file
+    linux_mac_cmd = "blender -b %s/%s -P clean.py -- %s %s" % (input_dir, temp_filename, input_dir, temp_filename)
+    win_cmd = "blender.exe -b %s/%s -P clean.py -- %s %s" % (input_dir, temp_filename, input_dir, temp_filename)
+
+    cmd = linux_mac_cmd if get_platform() == 'Linux' else win_cmd
+    stop_condition = os.path.isfile(os.path.join(input_dir, "output.blend")) and os.path.getsize(os.path.join(input_dir, "output.blend")) == 0
+    execute_blender(cmd, 20, stop_condition)
+
+    # Remove duplicate output.blend (Created By Cleaning Temporary Output Blend)
+    os.remove(os.path.join(input_dir, "output.blend1"))
+
 def run(file):
-    # update data
-    f_data.update(input_filename = file)
+
+    # Run Per Input Blend File
 
     in_filesize = os.path.getsize(os.path.join(input_dir, file))
-    f_data.update(input_file_size = in_filesize)
 
-    cmd = "blender -b %s%s -P combine.py" % (input_dir, file) if get_platform() == 'Linux' else "blender.exe -b %s%s -P combine.py" % (input_dir, file)
+    linux_mac_cmd = "blender -b %s/%s -P combine.py -- %s %s %s %d" % (input_dir, file, temp_filename, file, input_dir, in_filesize)
+    win_cmd = "blender.exe -b %s/%s -P combine.py -- %s %s %s %d" % (input_dir, file, temp_filename, file, input_dir, in_filesize)
+    #portable_cmd = "blender -b %s/%s -P combine.py -- $s %s %s %d" % (input_dir, file, input_dir, file, temp_filename, in_filesize)
+
+    cmd = linux_mac_cmd if get_platform() == 'Linux' or get_platform() == 'Darwin' else win_cmd
     #stop_condition = False
     execute_blender(cmd)
 
+    # Remove duplicate output.blend
+    os.remove(os.path.join(input_dir, "output.blend1"))
+
 def terminate(file):
-    last_file = file.split(" ")[0]
-    out_f_name = "%s%s" % (first_file, last_file)
-    time_taken = time.time() - start_time
-    filesize = os.path.getsize(os.path.join(input_dir, "output.blend"))
 
-    # update stats
-    f_data.update(output_filename = out_f_name)
-    f_data.update(output_file_size = filesize)
+    # Save, Print Statistics, and Rename Output Blend
 
-    s_data.update(time_taken = time_taken)
-    s_data.update(num_files_processed = num_files)
+    fn = os.path.splitext(file)[0]
+    last_file[0] = fn
+    out_f_name[0] = "%s-%s" % (first_file[0], last_file[0])
+    time_taken[0] = time.time() - start_time[0]
+    filesize = os.path.getsize("%s/%s" % (input_dir, temp_filename))
 
-    cmd = "blender -b %s/output.blend -P statistics.py" % input_dir if get_platform() == 'Linux' else "blender.exe -b %s/output.blend -P statistics.py" % input_dir
+    linux_mac_cmd = "blender -b %s/output.blend -P statistics.py -- %s %s %d %d %d" % (input_dir, input_dir, out_f_name[0], time_taken[0], num_files[0], filesize)
+    win_cmd = "blender.exe -b %s/output.blend -P statistics.py -- %s %s %d %d %d" % (input_dir, input_dir, out_f_name[0], time_taken[0], num_files[0], filesize)
+
+    cmd = linux_mac_cmd if get_platform() == 'Linux' else win_cmd
     execute_blender(cmd)
 
+    # Remove Temporary Output Blend (To Be Replaced by: '<First_Blend_File>-<Last_Blend_File>.blend')
     os.remove(os.path.join(input_dir, "output.blend"))
 
 
 def combine_to(i, file, amount):
+    
+    # Combine Blend Files Up To Set Amount (In Case There are Too Many Blends in Input Directory)
+    
     if i == 0:
         init(file)
 
     if i < amount:
         run(file)
     
-    else:
+    if i == amount - 1:
         terminate(file)
         i = -1
 
 
 def combine(i, file):
+
+    # Combine ALL Blend Files in Input Directory
+
     if i == 0:
         init(file)
 
-    # if i < num_files:
-    #     run(file)
+    if i < num_files[0]:
+        run(file)
     
-    # else:
-    #     terminate(file)
+    if i == num_files[0] - 1:
+        terminate(file)
 
 def main():
 
-    i = 0
+    i = [0]
     for file in os.listdir(input_dir):
-        fn, fe = os.path.splitext(file)
+        fe = os.path.splitext(file)[1]
 
         if fe == ".blend":
             #combine_to(i, file, 100)
-            combine(i, file)
-            #print(f_data.get("input_directory"))
+            combine(i[0], file)
 
-            i += 1
+            i[0] += 1
 
 main()

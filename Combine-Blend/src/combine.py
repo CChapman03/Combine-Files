@@ -2,94 +2,92 @@ import os
 import bpy
 import sys
 
-dir = os.path.dirname(bpy.data.filepath)
-if not dir in sys.path:
-    sys.path.append(dir)
+# Get index of first argument passes to blender after '--'
+idx = sys.argv.index('--') + 1
 
-import data
-
-import imp
-imp.reload(data)
-
-from data import *
-
-f_data = file_data
-
-# data variables
-temp_filename = f_data.get("temp_filename")
-input_filename = f_data.get("input_filename")
-input_directory = f_data.get("input_directory")
-in_filesize = f_data.get("input_file_size")
+# Get arguments passed to blender
+temp_filename = sys.argv[idx]
+input_filename = sys.argv[idx + 1]
+input_directory = sys.argv[idx + 2]
+in_filesize = int(sys.argv[idx + 3])
 
 # Statistics Variables
-file_collections = 0
-file_polys = 0
-file_objects = 0
-objects_in_file_collection = 0
-file_materials = 0
+file_collections = [0]
+file_polys = [0]
+file_objects = [0]
+objects_in_file_collection = [0]
+file_materials = [0]
 
 def print_statistics():
     # print statistics
     print("Appended Blend File: '%s' to '%s'.\n" % (input_filename, temp_filename))
-    print("Blend File: %s Contains: %d Collections, %d Objects, %d Polygons, and %d Materials.\n\n" % (input_filename, file_collections, file_objects, file_polys, file_materials))
+    print("Blend File: %s Contains: %d Collections, %d Objects, %d Polygons, and %d Materials.\n\n" % (input_filename, file_collections[0], file_objects[0], file_polys[0], file_materials[0]))
         
 def combine_blend():
 
-    # Load output file and get collections
-    with bpy.data.libraries.load("%s%s" % (input_directory, temp_filename)) as (data_from, data_to):
-        data_to.collections = data_from.collections
+    # create collection with input file's collections in it.
+    
+    # New Collection Name
+    new_collection_name = os.path.splitext(input_filename)[0]
 
-    # set output collections from load
-    output_collections = data_to.collections
-
-    # rename input file's collection
-    collection_name = input_filename.split(".")[0]
-    bpy.context.scene.collection.name = collection_name
-
-    # get input collection
+    # Get input file's collections
     input_collections = bpy.context.scene.collection
 
-    # Append input collection to output file
-    output_collections.children.link(input_collections)
+    # Try to rename input collection
+    input_collections.name = new_collection_name # NOT working!
 
-    print("Appending Collection: '%s' with %d Object(s) in it." % (collection_name, len(input_collections.objects)))
-    #total_collections += 1
+    # -------------------------------------------------------------------------
 
-    # write collections to output file
-    bpy.data.libraries.write(temp_filename, output_collections)
+    # TODO: 
+    # 1. Figure out how to use bpy to rename collections.
+    # 2. Then figure out how to combine multiple blend files together (Current Only Saves Out The Contents of the Last Blend File Processed)
 
-    # get statistics for input file
+    # -------------------------------------------------------------------------
+
+    # loop through collections in input collection
     for col in input_collections.children:
         for ob in col.objects:
-            file_objects += 1
+            file_objects[0] += 1
+
+            # add object to collection
+            if not ob.data.name in col:
+                col.objects.link(ob)         
 
             # get object type
             objType = getattr(ob, 'type', '')
 	    
             if objType in ["MESH"]:
                 # get number of polygons in object
-                file_polys += len(ob.data.polygons)
+                file_polys[0] += len(ob.data.polygons)
 
                 # get number of materials in object
                 mesh = ob.data
                 for faces in mesh.polygons:
-                    slot = ob.material_slots[faces.material_index]
-                    mat = slot.material
-                    if mat is not None:
-                        file_materials += 1
+                    if len(ob.material_slots) > 0:
+                        slot = ob.material_slots[faces.material_index]
+                        mat = slot.material
+                        if mat is not None:
+                            file_materials[0] += 1
 
-        file_collections += 1
+        file_collections[0] += 1
 
     # calculate filesize string
-    in_filesize_str = ""
+    in_filesize_str = [0]
     
     if in_filesize <= 1024:
-        in_filesize_str = "%d KB" % (in_filesize / 1024)
+        in_filesize_str[0] = "%d KB" % (in_filesize / 1024)
     elif in_filesize > 1024 and in_filesize <= 1024000:
-        in_filesize_str = "%d MB" % (in_filesize / 1024000)
+        in_filesize_str[0] = "%d MB" % (in_filesize / 1024000)
     elif in_filesize > 1024000 and in_filesize <= 1024000000:
-        in_filesize_str = "%d GB" % (in_filesize / 1024000000)
+        in_filesize_str[0] = "%d GB" % (in_filesize / 1024000000)
 
     print_statistics()
+
+    # Save output blend
+
+    file_path = "%s/%s" % (input_directory, temp_filename)
+    bpy.ops.wm.save_as_mainfile(filepath=file_path)
+
+    print("Appending Collection: '%s' with %d Object(s) in it." % (new_collection_name, len(input_collections.objects)))
 
 combine_blend()

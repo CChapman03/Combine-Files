@@ -1,32 +1,70 @@
-# data structs
-file_data = {"temp_filename" : "output.blend", "output_filename" : "", "input_filename" : "", "input_directory" : "", "input_file_size" : 0, "output_file_size" : 0}
-stat_data = {"time_taken" : 0, "num_files_processed" : 0}
+from dataclasses import dataclass
 
-def update_data(data_dict, data_key, new_val):
-    if not data_dict == None:
-        data_dict.update(data_key = new_val)
-    else:
-        print("Error! Could NOT get data from specified Dictionary! Dictionary does NOT exist! NOT Updating key '%s' with value '%s'" % (data_key, new_val))
-        return
+# ----------------------------------------
 
-def append_data(data_dict, data_key, val):
-    if not data_dict == None:
-        if not data_key in data_dict.keys():
-            data_dict[data_key] = val
-        else:
-            print("Error! Could NOT Append key '%s' with value '%s'! Key '%s' already exists in specified Dictionary!" % (data_key, val, data_key))
-    else:
-        print("Error! Could NOT get data from specified Dictionary! Dictionary does NOT exist! NOT Appending key '%s' with value '%s'" % (data_key, val))
-        return
+# Currently NOT used!
 
-def get_data(data_dict, data_key):
-    if not data_dict == None:
-        if data_key in data_dict.keys():
-            val = data_dict.get(data_key)
-            return val
-        else:
-            print("Error! The Dictionary specified has NO key called '%s'! Returning a value of None." % data_key)
-            return None
-    else:
-        print("Error! Could NOT get data from specified Dictionary! Dictionary does NOT exist! Returning a value of None.")
-        return None
+#-----------------------------------------
+
+@dataclass
+class FileData:
+    temp_filename: str = "output.blend"
+    input_filename: str = ""
+    input_directory: str = ""
+    output_filename: str = ""
+    input_file_size: int = 0
+    output_file_size: int = 0
+
+    def __str__(self):
+        return "{'temp_filename' : %s, 'input_filename' : %s, 'input_directory' : %s, 'output_filename' : %s, 'input_file_size' : %d, 'output_file_size' : %d}" % (self.temp_filename, self.input_filename, self.input_directory, self.output_filename, self.input_file_size, self.output_file_size)
+
+    def get_temp_filename(self):
+        return self.temp_filename
+    def set_temp_filename(self, temp_filename):
+        self.temp_filename = temp_filename
+
+    def get_input_filename(self):
+        return self.input_filename
+    def set_input_filename(self, input_filename):
+        self.input_filename = input_filename
+
+    def get_input_directory(self):
+            return self.input_filename
+    def set_input_directory(self, input_directory):
+        self.input_directory = input_directory
+
+    def get_output_filename(self):
+            return self.output_filename
+    def set_output_filename(self, output_filename):
+        self.output_filename = output_filename
+
+    def get_input_file_size(self):
+            return self.input_file_size
+    def set_input_file_size(self, input_file_size):
+        self.input_file_size = input_file_size
+
+    def get_output_file_size(self):
+            return self.output_file_size
+    def set_output_file_size(self, output_file_size):
+        self.output_file_size = output_file_size
+
+@dataclass
+class StatData:
+    time_taken: int = 0
+    num_files_processed: int = 0
+
+    def __str__(self):
+        return "{'time_taken' : %d, 'num_files_processed' : %d}" % (self.time_taken, self.num_files_processed)
+
+    def get_time_taken(self):
+        return self.time_taken
+    def set_time_taken(self, time_taken):
+        self.time_taken = time_taken
+    
+    def get_num_files_processed(self):
+        return self.num_files_processed
+    def set_num_files_processed(self, num_files_processed):
+        self.num_files_processed = num_files_processed
+
+f_data = FileData()
+s_data = StatData()

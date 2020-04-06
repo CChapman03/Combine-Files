@@ -2,24 +2,16 @@ import bpy
 import os
 import sys
 
-dir = os.path.dirname(bpy.data.filepath)
-if not dir in sys.path:
-    sys.path.append(dir)
+# Get index of first argument passes to blender after '--'
+idx = sys.argv.index('--') + 1
 
-import data
+# Get arguments passed to blender
+in_dir = sys.argv[idx]
+temp_file = sys.argv[idx + 1]
 
-import importlib
-importlib.reload(data)
-
-from data import *
-
-f_data = file_data
-in_dir = f_data.get("input_directory")
-temp_file = f_data.get("temp_filename")
-#print(in_dir)
-
-def main():
+def create():
+    # Create and save out temporary blend file for output
     file_path = "%s/%s" % (in_dir, temp_file)
     bpy.ops.wm.save_as_mainfile(filepath=file_path)
 
-main()
+create()

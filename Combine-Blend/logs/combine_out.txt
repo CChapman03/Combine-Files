@@ -1,6 +1,13 @@
 Blender 2.82 (sub 7) (hash 375c7dc4caf4 built 2020-03-14 10:27:40)
 Read prefs: /home/ciaran/.config/blender/2.82/config/userpref.blend
-Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/blends/blendfile001.blend
+Read blend: /Combine-Files/Combine-Blend/blends/output.blend
 psutil available
+Appended Blend File: 'default_blend_(copy_1)_(copy_1)_(copy_1)_(copy_1).blend' to 'output.blend'.
+
+Blend File: default_blend_(copy_1)_(copy_1)_(copy_1)_(copy_1).blend Contains: 1 Collections, 2 Objects, 2553 Polygons, and 0 Materials.
+
+
+MeasureIt: Cleaning data
+Appending Collection: 'default_blend_(copy_1)_(copy_1)_(copy_1)_(copy_1)' with 2 Object(s) in it.
 
 Blender quit

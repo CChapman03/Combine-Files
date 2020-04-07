@@ -11,7 +11,7 @@ temp_file = sys.argv[idx + 1]
 
 def create():
     # Create and save out temporary blend file for output
-    file_path = "%s/%s" % (in_dir, temp_file)
+    file_path = "%s/%s" % (in_dir.replace("'", ""), temp_file.replace("'", ""))
     bpy.ops.wm.save_as_mainfile(filepath=file_path)
 
 create()

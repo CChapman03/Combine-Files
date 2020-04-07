@@ -1,15 +1,26 @@
 import os
 import bpy
 import sys
+import shlex
+import re
+
+def getArg(index):
+
+    args_str = ' '.join(sys.argv[1:])
+    args = shlex.split(args_str)
+    i = args.index("--") + 1
+
+    val = args[i + index]
+    return val
 
 # Get index of first argument passes to blender after '--'
 idx = sys.argv.index('--') + 1
 
 # Get arguments passed to blender
-temp_filename = sys.argv[idx]
-input_filename = sys.argv[idx + 1]
-input_directory = sys.argv[idx + 2]
-in_filesize = int(sys.argv[idx + 3])
+temp_filename = getArg(0)
+input_filename = getArg(1)
+input_directory = getArg(2)
+in_filesize = int(getArg(3))
 
 # Statistics Variables
 file_collections = [0]
@@ -25,49 +36,45 @@ def print_statistics():
         
 def combine_blend():
 
-    # create collection with input file's collections in it.
-    
+    # Append data from input file
+    p = "%s/%s" % (input_directory, input_filename)
+    with bpy.data.libraries.load(p) as (data_from, data_to):
+        data_to.scenes = data_from.scenes
+        data_to.collections = data_from.collections
+
     # New Collection Name
-    new_collection_name = os.path.splitext(input_filename)[0]
+    new_collection_name = os.path.splitext(input_filename.replace("'", ""))[0]
 
     # Get input file's collections
-    input_collections = bpy.context.scene.collection
+    input_collections = data_to.scenes[0].collection
 
-    # Try to rename input collection
-    input_collections.name = new_collection_name # NOT working!
+    collection = bpy.data.collections.new(new_collection_name)
 
-    # -------------------------------------------------------------------------
+    for child in input_collections.children:
+        collection.children.link(child)
 
-    # TODO: 
-    # 1. Figure out how to use bpy to rename collections.
-    # 2. Then figure out how to combine multiple blend files together (Current Only Saves Out The Contents of the Last Blend File Processed)
+    bpy.context.scene.collection.children.link(collection)
 
-    # -------------------------------------------------------------------------
-
-    # loop through collections in input collection
-    for col in input_collections.children:
+    for col in collection.children:
         for ob in col.objects:
             file_objects[0] += 1
 
-            # add object to collection
-            if not ob.data.name in col:
-                col.objects.link(ob)         
-
             # get object type
             objType = getattr(ob, 'type', '')
-	    
+
             if objType in ["MESH"]:
                 # get number of polygons in object
                 file_polys[0] += len(ob.data.polygons)
 
                 # get number of materials in object
                 mesh = ob.data
-                for faces in mesh.polygons:
-                    if len(ob.material_slots) > 0:
-                        slot = ob.material_slots[faces.material_index]
-                        mat = slot.material
-                        if mat is not None:
-                            file_materials[0] += 1
+                mat = None
+
+                if len(ob.material_slots) > 0:
+                    slot = ob.material_slots[mesh.polygons[0].material_index]
+                    mat = slot.material
+                    if mat is not None:
+                        file_materials[0] += 1
 
         file_collections[0] += 1
 
@@ -86,8 +93,10 @@ def combine_blend():
     # Save output blend
 
     file_path = "%s/%s" % (input_directory, temp_filename)
+    #data_blocks = set(collection)
     bpy.ops.wm.save_as_mainfile(filepath=file_path)
+    #bpy.data.libraries.write(file_path, data_blocks)
 
-    print("Appending Collection: '%s' with %d Object(s) in it." % (new_collection_name, len(input_collections.objects)))
+    print("Appending Collection: '%s' with %d Object(s) in it." % (new_collection_name, file_objects[0]))
 
 combine_blend()

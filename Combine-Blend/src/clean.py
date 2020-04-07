@@ -25,7 +25,7 @@ def clean():
     #     bpy.data.objects.remove(o)
 
     # Re-Save Temporary Output File
-    file_path = "%s/%s" % (in_dir, temp_file)
+    file_path = "%s/%s" % (in_dir.replace("'", ""), temp_file.replace("'", ""))
     bpy.ops.wm.save_as_mainfile(filepath=file_path)
 
 clean()

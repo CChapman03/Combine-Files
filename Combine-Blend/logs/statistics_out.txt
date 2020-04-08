@@ -1,14 +1,15 @@
 Blender 2.82 (sub 7) (hash 375c7dc4caf4 built 2020-03-14 10:27:40)
 Read prefs: /home/ciaran/.config/blender/2.82/config/userpref.blend
-Read blend: /Combine-Files/Combine-Blend/blends/output.blend
+Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/output.blend
+Error: Cannot open file /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend//run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Default_Blend-/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene@ for writing: No such file or directory
 psutil available
 
-Finished Combining Blend Files! Time Taken: 5.957419 Seconds 
+Finished Combining Blend Files! Time Taken: 2.219248 Seconds 
 
 
 ----------------------------------------
 
-Blend File: 'blendfile001_(copy_1)_(copy_1)_(copy_1)_(copy_1)-default_blend_(copy_1)_(copy_1)_(copy_1)' Statistics: 
+Blend File: '/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Default_Blend-/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene' Statistics: 
 
 
 ----------------------------------------
@@ -17,83 +18,26 @@ Blend File: 'blendfile001_(copy_1)_(copy_1)_(copy_1)_(copy_1)-default_blend_(cop
 Collection-Tree: 
 ----------------------------------------
 
-	Collection: blendfile001_(copy_1)_(copy_1)_(copy_1)_(copy_1)
-		Collection: Collection
-			Object: Suzanne, Type: MESH, Polys : 500, Materials: [Monkey, ]
+----------------------------------------
 
-			Object: Sphere, Type: MESH, Polys : 512, Materials: [Blue, ]
+Number of Blend Files Combined: 2
 
-			Object: Torus, Type: MESH, Polys : 576, Materials: [Green, ]
+Total Number of Collections: 0 
 
-	Collection: blendfile001_(copy_1)_(copy_1)_(copy_1)
-		Collection: Collection.001
-			Object: Suzanne.001, Type: MESH, Polys : 500, Materials: [Monkey.001, ]
+Total Number of Objects: 0 
 
-			Object: Sphere.001, Type: MESH, Polys : 512, Materials: [Blue.001, ]
+Total Number of Polygons: 0 
 
-			Object: Torus.001, Type: MESH, Polys : 576, Materials: [Green.001, ]
-
-	Collection: blendfile001_(copy_1)_(copy_1)_(copy_2)
-		Collection: Collection.002
-			Object: Suzanne.002, Type: MESH, Polys : 500, Materials: [Monkey.002, ]
-
-			Object: Sphere.002, Type: MESH, Polys : 512, Materials: [Blue.002, ]
-
-			Object: Torus.002, Type: MESH, Polys : 576, Materials: [Green.002, ]
-
-	Collection: blendfile001_(copy_1)_(copy_1)
-		Collection: Collection.003
-			Object: Suzanne.003, Type: MESH, Polys : 500, Materials: [Monkey.003, ]
-
-			Object: Sphere.003, Type: MESH, Polys : 512, Materials: [Blue.003, ]
-
-			Object: Torus.003, Type: MESH, Polys : 576, Materials: [Green.003, ]
-
-	Collection: blendfile001_(copy_1)_(copy_1)_(copy_1).001
-		Collection: Collection.004
-			Object: Suzanne.004, Type: MESH, Polys : 500, Materials: [Monkey.004, ]
-
-			Object: Sphere.004, Type: MESH, Polys : 512, Materials: [Blue.004, ]
-
-			Object: Torus.004, Type: MESH, Polys : 576, Materials: [Green.004, ]
-
-	Collection: blendfile001_(copy_1)_(copy_1)_(copy_1)_(copy_1).001
-		Collection: Collection.005
-			Object: Suzanne.005, Type: MESH, Polys : 500, Materials: [Monkey.005, ]
-
-			Object: Sphere.005, Type: MESH, Polys : 512, Materials: [Blue.005, ]
-
-			Object: Torus.005, Type: MESH, Polys : 576, Materials: [Green.005, ]
-
-	Collection: default_blend_(copy_1)_(copy_1)_(copy_1)
-		Collection: Collection.006
-			Object: Bolt, Type: MESH, Polys : 2520, Materials: []
-
-			Object: Cone, Type: MESH, Polys : 33, Materials: []
-
-	Collection: default_blend_(copy_1)_(copy_1)_(copy_1)_(copy_1)
-		Collection: Collection.007
-			Object: Bolt.001, Type: MESH, Polys : 2520, Materials: []
-
-			Object: Cone.001, Type: MESH, Polys : 33, Materials: []
+Total Number of Materials: 0 
 
 ----------------------------------------
 
-Number of Blend Files Combined: 12
+File Size: 533.925781 KB 
 
-Total Number of Collections: 16 
-
-Total Number of Objects: 22 
-
-Total Number of Polygons: 14634 
-
-Total Number of Materials: 18 
 
 ----------------------------------------
-
-File Size: 2.778348 MB 
-
 
 MeasureIt: Cleaning data
+Error: Cannot open file /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend//run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Default_Blend-/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene@ for writing: No such file or directory
 
 Blender quit

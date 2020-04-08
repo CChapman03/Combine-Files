@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/combine.py", line 110, in <module>
+    combine_blend()
+  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/combine.py", line 43, in combine_blend
+    with bpy.data.libraries.load(p) as (data_from, data_to):
+OSError: load: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene.blend failed to open blend file

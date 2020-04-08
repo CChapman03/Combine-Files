@@ -4,23 +4,25 @@ import sys
 import shlex
 import re
 
-def getArg(index):
+# def getArg(index):
 
-    args_str = ' '.join(sys.argv[1:])
-    args = shlex.split(args_str)
-    i = args.index("--") + 1
+#     args_str = ' '.join(sys.argv[1:])
+#     args = shlex.split(args_str)
+#     i = args.index("--") + 1
 
-    val = args[i + index]
-    return val
+#     val = args[i + index]
+#     return val
 
 # Get index of first argument passes to blender after '--'
+print("HI")
 idx = sys.argv.index('--') + 1
 
 # Get arguments passed to blender
-temp_filename = getArg(0)
-input_filename = getArg(1)
-input_directory = getArg(2)
-in_filesize = int(getArg(3))
+temp_filename = sys.argv[idx + 0]
+input_filename = sys.argv[idx + 1]
+input_directory = sys.argv[idx + 2]
+in_filesize = int(sys.argv[idx + 3])
+out_dir = sys.argv[idx + 4]
 
 # Statistics Variables
 file_collections = [0]
@@ -35,7 +37,7 @@ def print_statistics():
     print("Blend File: %s Contains: %d Collections, %d Objects, %d Polygons, and %d Materials.\n\n" % (input_filename, file_collections[0], file_objects[0], file_polys[0], file_materials[0]))
         
 def combine_blend():
-
+    
     # Append data from input file
     p = "%s/%s" % (input_directory, input_filename)
     with bpy.data.libraries.load(p) as (data_from, data_to):
@@ -53,8 +55,11 @@ def combine_blend():
     for child in input_collections.children:
         collection.children.link(child)
 
-    bpy.context.scene.collection.children.link(collection)
+    for obj in input_collections.objects:
+        collection.objects.link(obj)
 
+    bpy.context.scene.collection.children.link(collection)
+ 
     for col in collection.children:
         for ob in col.objects:
             file_objects[0] += 1
@@ -80,23 +85,26 @@ def combine_blend():
 
     # calculate filesize string
     in_filesize_str = [0]
-    
+
     if in_filesize <= 1024:
-        in_filesize_str[0] = "%d KB" % (in_filesize / 1024)
+        in_filesize_str[0] = "%d B" % (in_filesize)
     elif in_filesize > 1024 and in_filesize <= 1024000:
-        in_filesize_str[0] = "%d MB" % (in_filesize / 1024000)
+        in_filesize_str[0] = "%d KB" % (in_filesize / 1024)
     elif in_filesize > 1024000 and in_filesize <= 1024000000:
+        in_filesize_str[0] = "%d MB" % (in_filesize / 1024000)
+    elif in_filesize > 1024000000 and in_filesize <= 1024000000000:
         in_filesize_str[0] = "%d GB" % (in_filesize / 1024000000)
 
     print_statistics()
 
     # Save output blend
-
-    file_path = "%s/%s" % (input_directory, temp_filename)
+    
+    file_path = "%s/%s" % (out_dir, temp_filename)
     #data_blocks = set(collection)
     bpy.ops.wm.save_as_mainfile(filepath=file_path)
     #bpy.data.libraries.write(file_path, data_blocks)
 
     print("Appending Collection: '%s' with %d Object(s) in it." % (new_collection_name, file_objects[0]))
+    print("Saved: %s" % file_path)
 
 combine_blend()

@@ -1,8 +1,14 @@
 Blender 2.82 (sub 7) (hash 375c7dc4caf4 built 2020-03-14 10:27:40)
 Read prefs: /home/ciaran/.config/blender/2.82/config/userpref.blend
-Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/output.blend
-Warning: Unable to open '/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene.blend': No such file or directory
+Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/output.blend
 psutil available
-HI
+Appended Blend File: 'Default_Blend.blend' to 'output.blend'.
+
+Blend File: Default_Blend.blend Contains: 2 Collections, 3 Objects, 6 Polygons, and 1 Materials.
+
+
+MeasureIt: Cleaning data
+Appending Collection: 'Default_Blend' with 3 Object(s) in it.
+Saved: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/output.blend
 
 Blender quit

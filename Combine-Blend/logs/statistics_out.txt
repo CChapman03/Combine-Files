@@ -1,15 +1,14 @@
 Blender 2.82 (sub 7) (hash 375c7dc4caf4 built 2020-03-14 10:27:40)
 Read prefs: /home/ciaran/.config/blender/2.82/config/userpref.blend
-Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/output.blend
-Error: Cannot open file /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend//run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Default_Blend-/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene@ for writing: No such file or directory
+Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/output.blend
 psutil available
 
-Finished Combining Blend Files! Time Taken: 2.219248 Seconds 
+Finished Combining Blend Files! Time Taken: 1.682888 Seconds 
 
 
 ----------------------------------------
 
-Blend File: '/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Default_Blend-/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene' Statistics: 
+Blend File: 'Default_Blend-Default_Blend' Statistics: 
 
 
 ----------------------------------------
@@ -18,26 +17,34 @@ Blend File: '/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_P
 Collection-Tree: 
 ----------------------------------------
 
-----------------------------------------
+	Collection: Default_Blend
+		Collection: Camera_Lights
+			Object: Light.001, Type: LIGHT, Polys : None, Materials: None
 
-Number of Blend Files Combined: 2
+			Object: Camera.001, Type: CAMERA, Polys : None, Materials: None
 
-Total Number of Collections: 0 
-
-Total Number of Objects: 0 
-
-Total Number of Polygons: 0 
-
-Total Number of Materials: 0 
+		Collection: Objects
+			Object: Cube.001, Type: MESH, Polys : 6, Materials: [Material.001, ]
 
 ----------------------------------------
 
-File Size: 533.925781 KB 
+Number of Blend Files Combined: 1
+
+Total Number of Collections: 3 
+
+Total Number of Objects: 3 
+
+Total Number of Polygons: 6 
+
+Total Number of Materials: 1 
+
+----------------------------------------
+
+File Size: 579.683594 KB 
 
 
 ----------------------------------------
 
 MeasureIt: Cleaning data
-Error: Cannot open file /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend//run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Default_Blend-/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene@ for writing: No such file or directory
 
 Blender quit

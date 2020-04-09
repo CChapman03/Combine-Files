@@ -1,9 +1,0 @@
-Traceback (most recent call last):
-  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/statistics.py", line 154, in <module>
-    print_stats()
-  File "/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/src/statistics.py", line 152, in print_stats
-    bpy.ops.wm.save_as_mainfile(filepath=file_path)
-  File "/usr/share/blender/2.82/scripts/modules/bpy/ops.py", line 201, in __call__
-    ret = op_call(self.idname_py(), None, kw)
-RuntimeError: Error: Cannot open file /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend//run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Default_Blend-/run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/Treee_Scene@ for writing: No such file or directory
-

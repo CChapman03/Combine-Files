@@ -1,0 +1,86 @@
+python combine_blend_files.py -h
+
+python combine_blend_files.py -i ../tests/blends/
+
+python combine_blend_files.py -i ../tests/blends/ -p
+python combine_blend_files.py -i ../tests/blends/ -p -P MyStats.txt
+
+python combine_blend_files.py -i ../tests/blends/ -o ../
+python combine_blend_files.py -i ../tests/blends/ -o ../ -p
+python combine_blend_files.py -i ../tests/blends/ -o ../ -p -P MyStats.txt
+
+python combine_blend_files.py -i ../tests/blends/ -o ../ -p -P MyStats.txt -l 1
+python combine_blend_files.py -i ../tests/blends/ -o ../ -p -P MyStats.txt -l 2
+
+python combine_blend_files.py -i ../tests/blends/ -o ../ -p -P MyStats.txt -l 1 -L
+python combine_blend_files.py -i ../tests/blends/ -o ../ -p -P MyStats.txt -l 2 -L
+
+python combine_blend_files.py -i ../tests/blends/ -p -P MyStats.txt -l 1
+python combine_blend_files.py -i ../tests/blends/ -p -P MyStats.txt -l 2
+
+python combine_blend_files.py -i ../tests/blends/ -p -P MyStats.txt -l 1 -L
+python combine_blend_files.py -i ../tests/blends/ -p -P MyStats.txt -l 2 -L
+
+python combine_blend_files.py -i ../tests/blends/ -p -l 1
+python combine_blend_files.py -i ../tests/blends/ -p -l 2
+
+python combine_blend_files.py -i ../tests/blends/ -p -P MyStats.txt -l 1 -L
+python combine_blend_files.py -i ../tests/blends/ -p -P MyStats.txt -l 2 -L
+
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -p
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -p -P MyStats.txt
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -p -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -p -l 2
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -p -l 1 -L
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -p -l 2 -L
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -o ../ -l 2
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -l 2
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -l 1 -L
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -l 2 -L
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -p -P Stats.txt -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -p -P Stats.txt -l 1 -L
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -p -P Stats.txt -l 2
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend -p -P Stats.txt -l 2 -L
+
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -p
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -p -P MyStats.txt
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -p -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -p -l 2
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -p -l 1 -L
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -p -l 2 -L
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -o ../ -l 2
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -l 2
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -l 1 -L
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -l 2 -L
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -p -P Stats.txt -l 1
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -p -P Stats.txt -l 1 -L
+
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -p -P Stats.txt -l 2
+python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../tests/blends/Nuts_N_Bolts.blend ../tests/blends/Treee_Scene.blend -p -P Stats.txt -l 2 -L

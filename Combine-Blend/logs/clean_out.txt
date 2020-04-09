@@ -1,6 +1,6 @@
 Blender 2.82 (sub 7) (hash 375c7dc4caf4 built 2020-03-14 10:27:40)
 Read prefs: /home/ciaran/.config/blender/2.82/config/userpref.blend
-Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/output.blend
+Read blend: /run/media/ciaran/Quick_Storage/Files/Programming_Projects/GitHub_Projects/Combine-Files/Combine-Blend/tests/blends/output.blend
 psutil available
 MeasureIt: Cleaning data
 

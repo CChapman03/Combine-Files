@@ -14,7 +14,6 @@ import re
 #     return val
 
 # Get index of first argument passes to blender after '--'
-print("HI")
 idx = sys.argv.index('--') + 1
 
 # Get arguments passed to blender

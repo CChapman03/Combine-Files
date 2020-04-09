@@ -25,11 +25,14 @@ class combine_blend_files:
     s_file = ""
     s_cont = ""
     temp_filename = "output.blend"
+    use_s_file = False
+    use_out_file = False
     
     first_file = [0]
     last_file = [0]
     start_time = [0]
     time_taken = [0]
+    n_files = [0]
 
     debug = True
 
@@ -47,8 +50,11 @@ class combine_blend_files:
         self.first_file[0] = ""
         self.last_file[0] = ""
         self.time_taken[0] = 0
+        self.use_s_file = False
+        self.use_out_file = False
+        self.n_files[0] = 0
 
-        self.debug = True
+        self.debug = False
 
     def get_num_files(self, path, is_dir = True):
         num_files = [0]
@@ -83,9 +89,22 @@ class combine_blend_files:
             start_time = time.time()
         else:
             if self.stats:
-                out = open("%s/%s" % (self.out_dir, self.s_file), 'w')
+                
+                if capture_out:
+                    out = None
+                    if self.use_s_file:
+                        out = open("%s/%s" % (self.out_dir, self.s_file), 'w')
+                    else:
+                        out = open("%s/%s-%s_Stats.txt" % (self.out_dir, self.first_file[0], self.last_file[0]), 'w')
 
-                p = subprocess.Popen(cmd.split(" "), stdout=out, text=True)
+                    p = subprocess.Popen(cmd.split(" "), stdout=out, text=True)
+                    start_time = time.time()
+                else:
+                    p = subprocess.Popen(cmd.split(" "))
+                    start_time = time.time()
+
+            else:
+                p = subprocess.Popen(cmd.split(" "))
                 start_time = time.time()
 
         #is_running = True
@@ -143,6 +162,8 @@ class combine_blend_files:
 
     def run(self, file, i):
 
+        print(file)
+
         # Run Per Input Blend File
         in_filesize = os.path.getsize("%s/%s" % (self.in_dir, file))
 
@@ -155,12 +176,19 @@ class combine_blend_files:
         #stop_condition = False
         self.execute_blender(cmd)
 
+        if not ' ' in file:
+            print("Y")
+            self.n_files[0] += 1
+
         # Remove duplicate output.blend
         #os.remove("%s/%s1" % (self.in_dir, self.temp_filename))
 
     def terminate(self, file, num_files):
 
         # Save, Print Statistics, and Rename Output Blend
+        print("here")
+        print("First File: %s" % self.first_file[0])
+        print("Last File: %s" % self.last_file[0])
 
         fn = os.path.splitext(file)[0]
 
@@ -169,13 +197,21 @@ class combine_blend_files:
         else:
             self.last_file[0] = fn
 
-        out_file = "%s-%s" % (self.first_file[0], self.last_file[0])
+        print("First File: %s" % self.first_file[0])
+        print("Last File: %s" % self.last_file[0])
+
+        out_file = ""
+        if not self.use_out_file:
+            out_file = "%s-%s" % (self.first_file[0], self.last_file[0])
         
+        if not self.use_s_file:
+            self.s_file = "%s/%s_Stats.txt" % (self.out_dir, out_file)
+
         self.time_taken[0] = time.time() - self.start_time[0]
         filesize = os.path.getsize("%s/%s" % (self.out_dir, self.temp_filename))
 
-        linux_mac_cmd = "blender -b %s/%s -P statistics.py -- %s %s %f %d %d" % (self.out_dir, self.temp_filename, self.out_dir, out_file, self.time_taken[0], num_files, filesize)
-        win_cmd = "blender.exe -b %s/%s -P statistics.py -- %s %s %f %d %d" % (self.out_dir, self.temp_filename, self.out_dir, out_file, self.time_taken[0], num_files, filesize)
+        linux_mac_cmd = "blender -b %s/%s -P statistics.py -- %s %s %f %d %d" % (self.out_dir, self.temp_filename, self.out_dir, out_file, self.time_taken[0], self.n_files[0], filesize)
+        win_cmd = "blender.exe -b %s/%s -P statistics.py -- %s %s %f %d %d" % (self.out_dir, self.temp_filename, self.out_dir, out_file, self.time_taken[0], self.n_files[0], filesize)
 
         cmd = linux_mac_cmd if self.get_platform() == 'Linux' else win_cmd
         self.execute_blender(cmd, capture_out=True)
@@ -191,21 +227,31 @@ class combine_blend_files:
             pass
 
 
-    def combine_to(self, i, file, amount, once = False):
+    def combine_to(self, i, file, amount, num_files, once = False):
         
         # Combine Blend Files Up To Set Amount (In Case There are Too Many Blends in Input Directory)
-        
-        if i == 0:
-            self.init(file)
 
-        if i < amount:
-            self.run(file, i)
-        
-        if i == amount - 1:
-            self.terminate(file, self.limit)
+        if once:
+            if i == 0:
+                self.init(file)
 
-            if not once:
-                i = -1
+            if i < amount:
+                self.run(file, i)
+            
+            if i == amount - 1:
+                self.terminate(file, amount)
+        else:
+            if i % (amount) == 0:
+                self.init(file)
+
+            if i % (amount) < amount:
+                self.run(file, i)
+            
+            if i % (amount) == amount - 1:
+                self.terminate(file, amount)
+
+            if i == num_files - 1:
+                self.terminate(file, amount)
 
     def combine(self, i, file, num_files):
 
@@ -216,9 +262,9 @@ class combine_blend_files:
 
         if i < num_files:
             self.run(file, i)
-            print(file)
         
         if i == num_files - 1:
+            print("Yeah2")
             self.terminate(file, num_files)
 
     
@@ -258,10 +304,10 @@ class combine_blend_files:
             if i > i1:
                 parse = False
 
-            # if parse:
             f.write("%s\n" % line)
 
             i += 1
+
         f.close()
 
     def main(self, args):
@@ -272,19 +318,31 @@ class combine_blend_files:
         
         in_file_array = self.in_files if use_in_files else []
         use_in_files = use_in_files and not len(in_file_array) == 0
-        print(in_file_array)
         
         use_in_dir = not use_in_files and len(in_file_array) == 0
         use_limit = not args.file_limit == 0
         use_looping = args.loop
+        print("Use Looping: %s" % str(args.loop))
 
-        self.in_dir = os.path.abspath(args.input_directory[0]) if use_in_dir else ""
-        self.out_dir = os.path.abspath(os.path.relpath(args.output_directory[0]))
-        #print(self.out_dir)
-        self.out_file = args.output_filename[0]
-        self.limit = args.file_limit
+        self.in_dir = os.path.abspath(args.input_directory[0]) if use_in_dir else os.path.dirname(in_file_array[0])
+        self.out_dir = os.path.abspath(os.path.relpath(args.output_directory)) if not args.output_directory == "" else self.in_dir
+
+        self.use_out_file = not args.output_filename == None
+        if self.use_out_file:
+            self.out_file = args.output_filename[0]
+        print("Use Output File: %s" % str(self.use_out_file))
+        print("Output File: %s" % self.out_file)
+
+        if args.file_limit > [0]:
+            self.limit = args.file_limit[0]
+
         self.stats = args.print_stats
-        self.s_file = args.stats_filename[0] if args.print_stats else ""
+        self.use_s_file = args.print_stats and not args.stats_filename == None
+        
+        print("Use Stat File: %s" % str(self.use_s_file))
+        if self.use_s_file:
+            self.s_file = args.stats_filename[0]
+        print("Stat File: %s" % self.s_file)
 
         if use_in_dir:
             # Using input directory for input files
@@ -301,11 +359,12 @@ class combine_blend_files:
                     #------------------------------------
 
                     i = [0]
+                    num_files = len(os.listdir(self.in_dir))
                     for file in os.listdir(self.in_dir):
                         fe = os.path.splitext(file)[1]
 
                         if fe == ".blend":
-                            self.combine_to(i[0], file, self.limit)
+                            self.combine_to(i[0], file, self.limit, num_files)
 
                             i[0] += 1
 
@@ -317,11 +376,12 @@ class combine_blend_files:
                     #------------------------------------
 
                     i = [0]
+                    num_files = len(os.listdir(self.in_dir))
                     for file in os.listdir(self.in_dir):
                         fe = os.path.splitext(file)[1]
 
                         if fe == ".blend":
-                            self.combine_to(i[0], file, self.limit, once=True)
+                            self.combine_to(i[0], file, self.limit, num_files, once=True)
 
                             i[0] += 1
 
@@ -335,13 +395,9 @@ class combine_blend_files:
                 #print("Running without limit")
 
                 i = [0]
+                num_files = len(os.listdir(self.in_dir))
                 for file in os.listdir(self.in_dir):
                     fe = os.path.splitext(file)[1]
-
-                    num_files = len(os.listdir(self.in_dir))
-                    
-                    #print("Number of files = %d" % num_files)
-                    #print(self.in_dir)
 
                     if fe == ".blend":
                         self.combine(i[0], file, num_files)
@@ -362,11 +418,13 @@ class combine_blend_files:
                     #------------------------------------
 
                     i = [0]
+                    num_files = len(in_file_array)
                     for file in in_file_array:
                         fe = os.path.splitext(file)[1]
 
                         if fe == ".blend":
-                            self.combine_to(i[0], file, self.limit)
+                            f = os.path.basename(file)
+                            self.combine_to(i[0], f, self.limit, num_files)
 
                             i[0] += 1
                     
@@ -378,11 +436,13 @@ class combine_blend_files:
                     #------------------------------------
 
                     i = [0]
+                    num_files = len(in_file_array)
                     for file in in_file_array:
                         fe = os.path.splitext(file)[1]
 
                         if fe == ".blend":
-                            self.combine_to(i[0], file, self.limit, once=True)
+                            f = os.path.basename(file)
+                            self.combine_to(i[0], f, self.limit, num_files, once=True)
 
                             i[0] += 1
 
@@ -394,12 +454,13 @@ class combine_blend_files:
                 #------------------------------------
 
                 i = [0]
+                num_files = len(in_file_array)
                 for file in in_file_array:
                     fe = os.path.splitext(file)[1]
 
                     if fe == ".blend":
-                        num_files = len(in_file_array)
-                        self.combine(i[0], file, num_files)
+                        f = os.path.basename(file)
+                        self.combine(i[0], f, num_files)
 
                         i[0] += 1
 
@@ -409,11 +470,6 @@ class combine_blend_files:
 
 
 if __name__ == "__main__":
-    # arg_list = sys.argv[1:]
-    # options = "hiIoOlLpP"
-    # long_options = "help input_directory input_filenames output_filename output_directory file_limit loop print_stats stats_filename".split(" ")
-    
-    # is_vaild_run = False
     c = combine_blend_files()
 
     try: 
@@ -431,8 +487,7 @@ if __name__ == "__main__":
         parser.add_argument('--output_directory', '-o', type=str, nargs=1, default=out_dir_default,
                     help='the path to store the generated/combined output blend file(s) (uses INPUT_DIRECTORY if not specified).')
 
-        out_file_default = "%s-%s" % (c.first_file, c.last_file)
-        parser.add_argument('--output_filename', '-O', type=str, nargs=1, default=out_file_default,
+        parser.add_argument('--output_filename', '-O', type=str, nargs=1,
                     help="the name of the generated/combined output blend file (uses '<FIRST_FILENAME>-<LAST_FILENAME>.blend' if not specified).")  
 
         parser.add_argument('--file_limit', '-l', type=int, nargs=1, default=0,
@@ -444,8 +499,7 @@ if __name__ == "__main__":
         parser.add_argument('--print_stats', '-p', action='store_true',
                     help="print the combine process results/statistics to a text file ('<OUTPUT_FILE>_Stats.txt' will be used if not specified).")
 
-        s_file_default = "%s/%s-%s_Stats.txt" % (c.out_dir, c.first_file, c.last_file)
-        parser.add_argument('--stats_filename', '-P', type=str, nargs=1, default=s_file_default,
+        parser.add_argument('--stats_filename', '-P', type=str, nargs=1,
                     help="the filename of the results/statistics text file (to be used in conjunction with the --print_stats command).")          
 
         args = parser.parse_args()
@@ -453,77 +507,3 @@ if __name__ == "__main__":
 
     except:
         sys.exit(2)
-
-    #     # Parse args
-    #     args, values = getopt.getopt(arg_list, options, long_options) 
-        
-    #     #run_main = False
-
-    #     # checking each argument 
-    #     for currentArgument, currentValue in args:
-    
-    #         if currentArgument in ("-h", "--help"): 
-    #             print("usage: combine_blend_files.py [-h] [-i INPUT_DIRECTORY | -I INPUT_FILES]")
-    #             print("")
-    #             print("Description: ")
-    #             print("A script to combine two or more Blender (.blend) files together.")
-    #             print("")
-    #             print("optional arguments: ")
-    #             print("-h, --help\tshow help message and exit")
-    #             print("-i, --input_directory\tthe directory where the input blender files are stored.")
-    #             print("-I, --input_filenames\tcombine specific blender files together.")
-    #             print("-o, --output_directory\tthe path to store the generated/combined output blend file(s) (uses INPUT_DIRECTORY by default).")
-    #             print("-O, --output_filename\tthe name of the generated/combined output blend file (uses '<FIRST_FILENAME>-<LAST_FILENAME>.blend' by default).")
-    #             print("-l, --file_limit\tthe number of blend files to combine from the specifed files (used to prevent very large output blend files).")
-    #             print("-L, --loop\tcontinue combining blend file after file limit is reached until the last input file is processed (# OF OUTPUT BLENDS = # of INPUT BLENDS / FILE LIMIT)")
-    #             print("-p, --print_stats\tprint the combine process results/statistics to a text file ('<OUTPUT_FILE>_Stats.txt' will be used as default).")
-    #             print("-P, --stats_filename\tthe filename of the results/statistics text file (to be used in conjunction with the --print_stats command).")
-
-    #         elif currentArgument in ("-i", "--input_directory"):
-    #             #c.in_dir = os.path.relpath(currentValue) + "/"
-    #             is_vaild_run = True
-    #             print(currentValue)
-                
-    #         elif currentArgument in ("-o", "--output_directory"): 
-    #             c.out_dir = os.path.abspath(currentValue) + "/"
-
-    #         elif currentArgument in ("-I", "--input_filenames"):
-    #             c.in_files = shlex.split(currentValue)
-    #             is_vaild_run = True
-                
-    #         elif currentArgument in ("-O", "--output_filename"): 
-    #             c.out_file = os.path.abspath(currentValue)
-
-    #         elif currentArgument in ("-l", "--file_limit"):
-    #             c.limit = int(currentValue)
-                
-    #         elif currentArgument in ("-L", "--loop"): 
-    #             c.loop = True
-
-    #         elif currentArgument in ("-p", "--print_stats"):
-    #             c.stats = True
-                
-    #         elif currentArgument in ("-P", "--stats_filename"): 
-    #             c.s_file = os.path.abspath(currentValue)
-
-    #         # elif currentArgument in ("-r", "--run"):
-
-    #         #     # ---------------------------------------------------------------
-
-    #         #     # TODO: Get combine_blend_files.py to run using Command line Arguments.
-                
-    #         #     # ---------------------------------------------------------------
-    #         #     if is_vaild_run:
-    #         #         c.main() # NOT Working!
-    #         #     else:
-    #         #         sys.exit(1)
-            
-    # except getopt.error as err: 
-    #     # output error, and return with an error code 
-    #     print (str(err))
-    #     sys.exit(2)
-
-    # if is_vaild_run:
-    #     c.main()
-    # else:
-    #     sys.exit(1)

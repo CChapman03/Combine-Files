@@ -17,26 +17,26 @@ def test_file_exists(file):
     msg = "File '%s' exists!" % file if res else "File '%s' does not exist :(" % file
     print(msg)
 
-def test_file_in_dir(file, dir):
+def test_file_in_dir(file, f_dir):
     is_dir = os.path.isdir(dir)
     is_file = os.path.isfile(file)
 
     msg = ""
 
     if is_dir and is_file:
-        for f in os.listdir(dir)
+        for f in os.listdir(f_dir)
             if file == f:
                 msg = "File '%s' found in Directory '%s'! ;)" % (file, dir)
 
         else
-            msg = "File '%s' exists, but was not found in Directory '%s'! :O" % (file, dir)
+            msg = "File '%s' exists, but was not found in Directory '%s'! :O" % (file,f_dir)
 
     elif is_dir and not is_file:
         msg = "No File Called '%s' was Found! :(" % file
     elif not is_dir and is_file:
-        msg = "No Directory Called '%s' was Found! :(" % dir
+        msg = "No Directory Called '%s' was Found! :(" % f_dir
     else:
-        msg = "No File '%s' and Directory '%s' was Found! :(" % (file, dir)
+        msg = "No File '%s' and Directory '%s' was Found! :(" % (file, f_dir)
 
     print(msg)
 

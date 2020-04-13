@@ -503,7 +503,7 @@ if __name__ == "__main__":
                     help="the filename of the results/statistics text file (to be used in conjunction with the --print_stats command).")          
 
         args = parser.parse_args()
-        c.main(args)
+        sys.exit(c.main(args))
 
     except:
         sys.exit(2)

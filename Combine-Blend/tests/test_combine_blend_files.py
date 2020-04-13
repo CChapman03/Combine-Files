@@ -4,171 +4,218 @@ import platform
 import time
 import resource
 import sys
-import itertools
-from itertools import product
 
-def read_test_file(filename):
-    commands = []
+def execute_comine_blend_files(cmd, time_limit = 60*5, stop = False, capture_out = False):
 
-    file = open(filename, 'r')
+    # Create Log Files Per Subprocess
 
-    for line in file.readlines:
-        if line == "" or line == " " or line == None:
-            # ignore, no command
-            pass
+    out = open("logs/out.txt", "w")
+    err = open("logs/err.txt", "w")
 
-        else:
-            commands.append(line)
+    p = subprocess.Popen(cmd.split(" "), stdout=out, stderr=err, text=True)
+    start_time = time.time()
 
-    file.close()
+    #is_running = True
+    while p.returncode == None:
+        p.poll()
 
-    return commands
+        if time.time() - start_time > time_limit:
+            if stop:
+                p.kill()
+                raise Exception("Process with command '%s' has failed to do its job" % cmd)
+            
+            p.kill()
+            raise Exception("Process with command '%s' has failed to do its job" % cmd)
+        
+    p.wait()
 
-def write_test_file(filename):
-    file = open(filename, 'w')
+def test_args(args):
+    execute_comine_blend_files(args)
+    passed = True
 
-    file.write(get_run_combinations())
+    err = open("logs/err.txt", 'r')
+    out = open("logs/out.txt", 'r')
 
-    file.close()
+    if len(err.readlines()) > 0:
+        passed = False
 
-def get_run_combinations():
+    err.close()
+    out.close()
 
-    run_config = {}
-
-    req_args = "-h -i -I".split(" ")
-    long_req_args = "--help --input_directory --input_filenames".split(" ")
-    opt_args = "-o  -O  -l  -L  -p  -P".split("  ")
-    long_opt_args = "--output_directory  --output_filename  --file_limit  -loop  --print_stats  --stats_filename".split("  ")
-
-    args = []
-    long_args = []
-    #print(args)
-
-    help_vals = []
-    in_dirs = "../test/blends/ | ../test/blends/my blends/ | ../does/not/exist/ | with/w!@rd//ch#r$/ |  ".split(" | ")
-    in_files = "../tests/blends/Blahh.blend ../tests/blends/Cool.blend | ../tests/blends/Blahh.blend ../tests/blends/Cool.blend ../tests/blends/default.blend ../blends/my blends/Nuts N Bolts.blend ../blends/Treee_Scene.blend | does/not/exist.blend | /with/w!@rd//ch#r$/,blend | myblend |  ".split(" | ")
-    limits = "-1 0 1 2 5 25 a * ?  ".split(" ")
-    loop = []
-    out_dirs = "../ | ../test/blends/ | ../test/blends/my blends/ | ../doesnotexist/ | with/w!@rd//ch#r$/ |  ".split(" | ")
-    out_files = "my out file | test.blend | out | cool!.blend | with-dashes.blend | with.dots.blend | with/slashes.blend | with~very*char'$,blend |  ".split(" | ")
-    print_stats = []
-    s_files = "my stat file | test.txt | wow?.txt | with.dots.txt | with/slashes.txt | with~very*char'$,txt |  ".split(" | ")
-
-    a = [] + req_args + opt_args + long_req_args + long_opt_args
-    v = [] + [help_vals] + [in_dirs] + [in_files] + [out_dirs] + [out_files] + [limits] + [loop] + [print_stats] + [s_files]
-    v += [help_vals] + [in_dirs] + [in_files] + [out_dirs] + [out_files] + [limits] + [loop] + [print_stats] + [s_files]
-
-    #print(v)
-
-    run_config = dict(zip(a, v))
-
-    opt_args = "-o  -O  -l  -l -L  -p  -p -P".split("  ")
-    long_opt_args = "--output_directory  --output_filename  --file_limit  --file_limit --loop  --print_stats  --print_stats --stats_filename".split("  ")
-
-    combos = []
-
-    for L in range(0, len(opt_args)+1):
-        for combo in itertools.combinations(opt_args, L):
-            combos.append(combo)
-
-    for L in range(0, len(long_opt_args)+1):
-        for combo in itertools.combinations(long_opt_args, L):
-            combos.append(combo)
-
-    #print(combos)
-
-    s = ""
-    for com in combos:
-        s += "%s|" % str(com)
-        for x in "( ) , '".split(" "):
-            s = s.replace(x, "")
-        #print(s)
-
-    x = s.split("|")
-
-    a = []
-    for y in x:
-        z = y.split(" ")
-        z = list(dict.fromkeys(z))
-
-        a += [z]
-
-    combos_array = []
-    
-    for com in a:
-        aa = "-i ".split(" ")  + com
-        aa.remove("")
-        combos_array.append(aa)
-    for com in a:
-        aa = "-I ".split(" ")  + com
-        aa.remove("")
-        combos_array.append(aa)
-    for com in a:
-        aa = "--input_directory ".split(" ")  + com
-        aa.remove("")
-        combos_array.append(aa)
-    for com in a:
-        aa = "--input_filenames ".split(" ")  + com
-        aa.remove("")
-        combos_array.append(aa)
-
-    #print(combos_array)
-
-    run_config["combos"] = combos_array
-
-    #print(run_config)
-
-    s = ""
-    prog = "python combine_blend_files.py"
-    s += "%s %s\n" % (prog, "-h")
-    s += "%s %s\n" % (prog, "--help")
-    for key, val in run_config.items():
-        if key == "combos":
-            for combo in run_config.get(key):
-                s_combo = str(combo)
-                #print(s_combo)
-                for com in combo:
-
-                    com_key = com
-                    com_vals = run_config.get(com_key)
-                    #print("com_key = %s" % com_key)
-                    #print("com_val = %s" % com_vals)
-                    s += "%s %s" % (prog, com_key)
-
-                    i = 0
-                    k = ""
-                    if not com_vals == None:
-                        for v in com_vals:
-                            if i < len(com_vals):
-                                if not com_key == k:
-                                    if com_key == "-i":
-                                        s += "\n%s %s " % (prog, com_key)
-                                        #print(v)
-                                        s += "%s" % v
-                                    else:
-                                        s += " %s " % com_key
-                                        s += "%s" % v
-                                else:
-                                    s += "\n%s %s " % (prog, com_key)
-                                    #print(v)
-                                    s += "%s" % v
-
-                            if i == len(com_vals) - 1:
-                                s += "\n" if not "-i" in com_key else ""
-
-                            k = com_key
-                            i += 1
-
-                    s += "\n"
-                            #print("%s %s %s" % (prog, com_key, v))
-
-                #print(s_combo)
-                    
-
-    print(s)
-    return s
+    return passed
 
 
 def main():
-    write_test_file("test_run_commands.txt")
+    tests = []
+
+    # -h and --help
+    tests.append({"print_help" : test_args("cd ../src/ && python combine_blend_files.py -h") and test_args("cd ../src/ && python combine_blend_files.py --help")})
+    
+    # -i
+    tests.append({"input_directory_exists" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/")})
+    tests.append({"input_directory_does_NOT_exist" : not test_args("cd ../src/ && python combine_blend_files.py -i ../does/NOT/exist/")})
+    tests.append({"input_directory_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/my blends/")})
+    tests.append({"input_directory_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i")})
+    tests.append({"input_directory_none" : not test_args("cd ../src/ && python combine_blend_files.py -i ")})
+    tests.append({"input_directory_valid" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/")})
+    tests.append({"input_directory_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py -i with/w!@rd//ch#r$/")})
+
+    # -I
+    tests.append({"input_filenames_exist" : test_args("cd ../src/ && python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_do_NOT_exist" : not test_args("cd ../src/ && python combine_blend_files.py -I does/not/exist.blend ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py -I blends/Nuts N Bolts.blend blends/Treee_Scene.blend")})
+    tests.append({"input_filenames_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py -I")})
+    tests.append({"input_filenames_none" : not test_args("cd ../src/ && python combine_blend_files.py -I ")})
+    tests.append({"input_filenames_valid" : test_args("cd ../src/ && python combine_blend_files.py -I ../tests/blends/Blahh.blend ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py -I /with/w!@rd//ch#r$/,blend ../test/blends/Blahh.blend")})
+    tests.append({"input_filenames_from_different_directories" : test_args("cd ../src/ && python combine_blend_files.py -I ../tests/blends/Blahh.blend blends/Default_Blend.blend")})
+    tests.append({"input_filenames_no_file_extension" : test_args("cd ../src/ && python combine_blend_files.py -I ../tests/blends/Blahh ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_only_one_filename" : not test_args("cd ../src/ && python combine_blend_files.py -I ../tests/blends/Cool.blend")})
+
+    # -o
+    tests.append({"output_directory_exists" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -o ../")})
+    tests.append({"output_directory_does_NOT_exist" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -o ../does/not/exist/")})
+    tests.append({"output_directory_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -o ../tests/blends/my blends/")})
+    tests.append({"output_directory_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -o")})
+    tests.append({"output_directory_none" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -o ")})
+    tests.append({"output_directory_valid" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -o ../")})
+    tests.append({"output_directory_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -o with/w!@rd//ch#r$/")})
+
+    # -O
+    tests.append({"output_filename_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -O my output blend.blend")})
+    tests.append({"output_filename_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -O")})
+    tests.append({"output_filename_none" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -O ")})
+    tests.append({"output_filename_valid" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -O output.blend")})
+    tests.append({"output_filename_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -O w!@rd.out.blend")})
+    tests.append({"output_filename_no_file_extension" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -O out")})
+    tests.append({"output_filename_multiple_filenames" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -O out.txt output2.txt")})
+    
+
+    # -l
+    tests.append({"file_limit_zero" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l 0")})
+    tests.append({"file_limit_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l")})
+    tests.append({"file_limit_none" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l ")})
+    tests.append({"file_limit_negative" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l -1")})
+    tests.append({"file_limit_valid" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l 2")})
+    tests.append({"file_limit_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l a")})
+    tests.append({"file_limit_multiple_values" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l 2 5")})
+    tests.append({"file_limit_greater_then_num_input_files" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l %d" % len(os.listdir("../tests/blends/") + 1))})
+
+    # -L
+    tests.append({"loop_valid" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l 1 -L")})
+    tests.append({"loop_without_file_limit" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -L")})
+    tests.append({"loop_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l 1 -L 1")})
+    tests.append({"loop_none_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l 1 -L ")})
+    tests.append({"loop_bool_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -l 1 -L True")})
+
+    # -p
+    tests.append({"print_stats_valid" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p")})
+    tests.append({"print_stats_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p yes")})
+    tests.append({"print_stats_none_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p ")})
+    tests.append({"print_stats_bool_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p True")})
+
+    # -P
+    tests.append({"stats_filename_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p -P my stats.txt")})
+    tests.append({"stats_filename_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p -P")})
+    tests.append({"stats_filename_none" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p -P ")})
+    tests.append({"stats_filename_valid" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p -P stats.txt")})
+    tests.append({"stats_filename_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p -P w!@rd.stats.txt")})
+    tests.append({"stats_filename_no_file_extension" : test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p -P stats")})
+    tests.append({"stats_filename_without_print_stats" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -P stats.txt")})
+    tests.append({"stats_filename_multiple_filenames" : not test_args("cd ../src/ && python combine_blend_files.py -i ../tests/blends/ -p -P stats.txt stats2.txt")})
+    
+
+    # --input_directory
+    tests.append({"input_directory_exists" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/")})
+    tests.append({"input_directory_does_NOT_exist" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../does/NOT/exist/")})
+    tests.append({"input_directory_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/my blends/")})
+    tests.append({"input_directory_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory")})
+    tests.append({"input_directory_none" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ")})
+    tests.append({"input_directory_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/")})
+    tests.append({"input_directory_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory with/w!@rd//ch#r$/")})
+
+    # --input_filenames
+    tests.append({"input_filenames_exist" : test_args("cd ../src/ && python combine_blend_files.py --input_filenames ../tests/blends/Blahh.blend ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_do_NOT_exist" : not test_args("cd ../src/ && python combine_blend_files.py --input_filenames does/not/exist.blend ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py --input_filenames blends/Nuts N Bolts.blend blends/Treee_Scene.blend")})
+    tests.append({"input_filenames_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_filenames")})
+    tests.append({"input_filenames_none" : not test_args("cd ../src/ && python combine_blend_files.py --input_filenames ")})
+    tests.append({"input_filenames_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_filenames ../tests/blends/Blahh.blend ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py --input_filenames /with/w!@rd//ch#r$/,blend ../test/blends/Blahh.blend")})
+    tests.append({"input_filenames_from_different_directories" : test_args("cd ../src/ && python combine_blend_files.py --input_filenames ../tests/blends/Blahh.blend blends/Default_Blend.blend")})
+    tests.append({"input_filenames_no_file_extension" : test_args("cd ../src/ && python combine_blend_files.py --input_filenames ../tests/blends/Blahh ../tests/blends/Cool.blend")})
+    tests.append({"input_filenames_only_one_filename" : not test_args("cd ../src/ && python combine_blend_files.py --input_filenames ../tests/blends/Cool.blend")})
+
+    # --output_directory
+    tests.append({"output_directory_exists" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_directory ../")})
+    tests.append({"output_directory_does_NOT_exist" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_directory ../does/not/exist/")})
+    tests.append({"output_directory_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_directory ../tests/blends/my blends/")})
+    tests.append({"output_directory_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_directory")})
+    tests.append({"output_directory_none" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_directory ")})
+    tests.append({"output_directory_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_directory ../")})
+    tests.append({"output_directory_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_directory with/w!@rd//ch#r$/")})
+
+    # --output_filename
+    tests.append({"output_filename_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_filename my output blend.blend")})
+    tests.append({"output_filename_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_filename")})
+    tests.append({"output_filename_none" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_filename ")})
+    tests.append({"output_filename_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_filename output.blend")})
+    tests.append({"output_filename_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_filename w!@rd.out.blend")})
+    tests.append({"output_filename_no_file_extension" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_filename out")})
+    tests.append({"output_filename_multiple_filenames" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --output_filename out.txt output2.txt")})
+    
+
+    # --file_limit
+    tests.append({"file_limit_zero" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit 0")})
+    tests.append({"file_limit_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit")})
+    tests.append({"file_limit_none" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit ")})
+    tests.append({"file_limit_negative" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit -1")})
+    tests.append({"file_limit_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit 2")})
+    tests.append({"file_limit_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit a")})
+    tests.append({"file_limit_multiple_values" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit 2 5")})
+    tests.append({"file_limit_greater_then_num_input_files" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit %d" % len(os.listdir("../tests/blends/") + 1))})
+
+    # --loop
+    tests.append({"loop_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit 1 --loop")})
+    tests.append({"loop_without_file_limit" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --loop")})
+    tests.append({"loop_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit 1 --loop 1")})
+    tests.append({"loop_none_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit 1 --loop ")})
+    tests.append({"loop_bool_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --file_limit 1 --loop True")})
+
+    # --print_stats
+    tests.append({"print_stats_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats")})
+    tests.append({"print_stats_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats yes")})
+    tests.append({"print_stats_none_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats ")})
+    tests.append({"print_stats_bool_value_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats True")})
+
+    # --stats_filename
+    tests.append({"stats_filename_with_spaces" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats --stats_filename my stats.txt")})
+    tests.append({"stats_filename_not_provided" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats --stats_filename")})
+    tests.append({"stats_filename_none" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats --stats_filename ")})
+    tests.append({"stats_filename_valid" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats --stats_filename stats.txt")})
+    tests.append({"stats_filename_NOT_valid" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats --stats_filename w!@rd.stats.txt")})
+    tests.append({"stats_filename_no_file_extension" : test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats --stats_filename stats")})
+    tests.append({"stats_filename_without_print_stats" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --stats_filename stats.txt")})
+    tests.append({"stats_filename_multiple_filenames" : not test_args("cd ../src/ && python combine_blend_files.py --input_directory ../tests/blends/ --print_stats --stats_filename stats.txt stats2.txt")})
+
+    num_passed = 0
+    num_failed = 0
+    for test in tests:
+        for key, val in test.items():
+            s = "%s %s" % (key, "Passed!" if val else "Failed!")
+            print(s)
+            num_passed += 1 if val else 0
+            num_failed += 1 if not val else 0
+            f = open("tests.txt", 'w')
+            f.write("Running Tests for: combine_blend_files.py\n")
+            f.write("----------------------------------------------\n\n")
+            f.write("Test: %s\n" % s)
+            f.write("----------------------------------------------\n")
+            f.write("Number of Tests Passed: %d\n" % num_passed)
+            f.write("Number of Tests Failed: %d\n" % num_failed)
+            f.write("----------------------------------------------\n")
+            f.write("Yay! All the Tests Passed! combine_blend_files.py is ready for Production Use!" if len(num_failed) == 0 else "Sorry! Some of the Tests Failed. combine_blend_files.py is NOT ready for Production Use yet.")
+            f.close()
+
+
 main()

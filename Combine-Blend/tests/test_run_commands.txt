@@ -1,1 +1,2 @@
-None
+python combine_blend_files.py -h
+python combine_blend_files.py --help
